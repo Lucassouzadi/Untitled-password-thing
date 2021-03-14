@@ -2,8 +2,8 @@ package passwordting;
 
 import java.io.Serializable;
 
-public class Content implements Serializable {
-    private String account;
+public class Account implements Serializable {
+    private String name;
 
     private String username;
 
@@ -11,14 +11,14 @@ public class Content implements Serializable {
 
     private boolean hasUser;
 
-    public Content(String account, String password) {
-        this.account = account;
+    public Account(String name, String password) {
+        this.name = name;
         this.password = password;
         this.hasUser = false;
     }
 
-    public Content(String account, String password, String username) {
-        this.account = account;
+    public Account(String name, String password, String username) {
+        this.name = name;
         this.username = username;
         this.password = password;
         this.hasUser = true;
@@ -28,8 +28,8 @@ public class Content implements Serializable {
         return this.hasUser;
     }
 
-    public String getAccount() {
-        return this.account;
+    public String getName() {
+        return this.name;
     }
 
     public String getUsername() {
@@ -41,14 +41,14 @@ public class Content implements Serializable {
     }
 
     public String toString() {
-        String output = "Conta: " + this.account + "\n";
+        String output = "Conta: " + this.name + "\n";
         if (this.hasUser)
             output = output + "Usuário: " + this.username + "\n";
         return output + "Senha: " + this.password;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setUsername(String username) {

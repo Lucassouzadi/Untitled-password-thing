@@ -2,103 +2,107 @@ package passwordting;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.Objects;
 
 public class PasswordTing {
+
+    public static final String TITLE = "Cryptic v10.0";
+    public static final int DECRYPT = 0;
+    public static final int ENCRYPT = 1;
+
     public static void main(String[] args) {
         try {
-            bora();
+            mainLoop();
         } catch (Exception ex) {
             ex.printStackTrace();
-            StackTraceElement[] sT = ex.getStackTrace();
-            String stackTrace = ex.toString();
-            for (StackTraceElement sT1 : sT)
-                stackTrace = stackTrace + "\n" + sT1;
-            JOptionPane.showMessageDialog(null, stackTrace, "Deu Ruim", 0);
+            StringBuilder stackTrace = new StringBuilder(ex.toString());
+            for (var stackTraceElement : ex.getStackTrace())
+                stackTrace.append("\n").append(stackTraceElement);
+            JOptionPane.showMessageDialog(null, stackTrace.toString(), TITLE + " - ERRO", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private static void bora() {
-        Menager alan = new Menager();
-        String titulo = "Super Encriptador Loko de Senhas v8.004";
+    private static void mainLoop() {
+        Manager manager = new Manager();
         File encryptedPasswordsDir = new File("encryptedPasswords");
-        Object[] options1 = {"Decrypt", "Encrypt"};
-        boolean continuar;
-        for (continuar = true; continuar; ) {
-            String account, passwordList[], user, option, password;
-            File contentFile;
-            String key;
-            Content content, conteudo;
-            int option1 = JOptionPane.showOptionDialog(null, "Escolha uma opção", titulo, -1, 3, null, options1, "Decrypt");
-            switch (option1) {
-                case 1:
-                    account = JOptionPane.showInputDialog(null, "Conta", titulo, 3);
-                    if (account == null)
+        String[] options1 = new String[]{"Decrypt", "Encrypt"};
+        boolean continuar = true;
+        while (continuar) {
+            String accountName, passwordList[], user, option, password, input;
+            switch (JOptionPane.showOptionDialog(null, "Escolha uma opção", TITLE, JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options1, "Decrypt")) {
+                case ENCRYPT:
+                    accountName = JOptionPane.showInputDialog(null, "Conta", TITLE, JOptionPane.QUESTION_MESSAGE);
+                    if (accountName == null)
                         continue;
-                    account = account.trim();
-                    if (account.equals("")) {
-                        JOptionPane.showMessageDialog(null, "Inválido", titulo, 2);
+                    accountName = accountName.trim();
+                    if ("".equals(accountName)) {
+                        JOptionPane.showMessageDialog(null, "Inválido", TITLE, JOptionPane.WARNING_MESSAGE);
                         continue;
                     }
-                    user = alan.hiddenInput(titulo, "Usu\n(se não houver usuário, deixe em branco e prossiga)");
+                    user = manager.hiddenInput(TITLE, "Usuário:\n(se não houver usuário, deixe em branco e prossiga)");
                     if (user == null)
                         continue;
-                    if (!"".equals(user) && !alan.hiddenInput(titulo, "Digite novamente o Usuário").equals(user)) {
-                        JOptionPane.showMessageDialog(null, "Inválido", titulo, 2);
+                    if (!"".equals(user) && !manager.hiddenInput(TITLE, "Digite novamente o Usuário").equals(user)) {
+                        JOptionPane.showMessageDialog(null, "Inválido", TITLE, JOptionPane.WARNING_MESSAGE);
                         continue;
                     }
-                    password = alan.hiddenInput(titulo, "Senha:");
+                    password = manager.hiddenInput(TITLE, "Senha:");
                     if (password == null)
                         continue;
                     if (password.equals("")) {
-                        JOptionPane.showMessageDialog(null, "Inválido", titulo, 2);
+                        JOptionPane.showMessageDialog(null, "Inválido", TITLE, JOptionPane.WARNING_MESSAGE);
                         continue;
                     }
-                    if (!alan.hiddenInput(titulo, "Digite novamente a Senha:").equals(password)) {
-                        JOptionPane.showMessageDialog(null, "Inválido", titulo, 2);
+                    if (!manager.hiddenInput(TITLE, "Digite novamente a Senha:").equals(password)) {
+                        JOptionPane.showMessageDialog(null, "Inválido", TITLE, JOptionPane.WARNING_MESSAGE);
                         continue;
                     }
-                    key = alan.hiddenInput(titulo, "Chave:");
-                    if (key == null)
+                    input = manager.hiddenInput(TITLE, "Chave:");
+                    if (input == null)
                         continue;
-                    if (key.equals("")) {
-                        JOptionPane.showMessageDialog(null, "Inválido", titulo, 2);
-                        continue;
-                    }
-                    if (!alan.hiddenInput(titulo, "Digite novamente a Chave:").equals(key)) {
-                        JOptionPane.showMessageDialog(null, "Inválido", titulo, 2);
+                    if ("".equals(input)) {
+                        JOptionPane.showMessageDialog(null, "Inválido", TITLE, JOptionPane.WARNING_MESSAGE);
                         continue;
                     }
+                    if (!manager.hiddenInput(TITLE, "Digite novamente a Chave:").equals(input)) {
+                        JOptionPane.showMessageDialog(null, "Inválido", TITLE, JOptionPane.WARNING_MESSAGE);
+                        continue;
+                    }
+                    Account accountToEncrypt;
                     if ("".equals(user)) {
-                        content = new Content(account, alan.encrypt(password, key));
+                        accountToEncrypt = new Account(accountName, manager.encrypt(password, input));
                     } else {
-                        content = new Content(account, alan.encrypt(password, key), alan.encrypt(user, key));
+                        accountToEncrypt = new Account(accountName, manager.encrypt(password, input), manager.encrypt(user, input));
                     }
                     if (!encryptedPasswordsDir.exists())
                         encryptedPasswordsDir.mkdir();
-                    alan.save(new File(encryptedPasswordsDir + "\\" + account), content);
-                    JOptionPane.showMessageDialog(null, "Senha salva com Sucesso!", titulo, 1);
-                case 0:
+                    manager.save(new File(encryptedPasswordsDir + "\\" + accountName), accountToEncrypt);
+                    JOptionPane.showMessageDialog(null, "Senha salva com Sucesso!", TITLE, JOptionPane.INFORMATION_MESSAGE);
+                    break;
+                case DECRYPT:
                     if (!encryptedPasswordsDir.exists())
                         encryptedPasswordsDir.mkdir();
                     passwordList = encryptedPasswordsDir.list();
-                    if (passwordList.length == 0) {
-                        JOptionPane.showMessageDialog(null, "Pasta de senhas vazia!", titulo, 2);
+                    if (Objects.nonNull(passwordList) && passwordList.length == 0) {
+                        JOptionPane.showMessageDialog(null, "Pasta de senhas vazia!", TITLE, JOptionPane.WARNING_MESSAGE);
                         continue;
                     }
-                    option = (String) JOptionPane.showInputDialog(null, "Selecione a conta", titulo, -1, null, (Object[]) passwordList, null);
+                    option = (String) JOptionPane.showInputDialog(null, "Selecione a conta", TITLE, JOptionPane.PLAIN_MESSAGE, null, passwordList, null);
                     if (option == null)
                         continue;
-                    contentFile = new File(encryptedPasswordsDir + "\\" + option);
-                    key = alan.hiddenInput(titulo, "Chave:");
-                    if (key == null)
+                    File accountFileToDecrypt = new File(encryptedPasswordsDir + "\\" + option);
+                    input = manager.hiddenInput(TITLE, "Chave:");
+                    if (input == null)
                         continue;
-                    conteudo = (Content) alan.read(contentFile);
-                    conteudo.setPassword(alan.decrypt(conteudo.getPassword(), key));
-                    if (conteudo.hasUser())
-                        conteudo.setUsername(alan.decrypt(conteudo.getUsername(), key));
-                    JOptionPane.showMessageDialog(null, conteudo);
+                    Account accountToDecrypt = manager.readAccount(accountFileToDecrypt);
+                    accountToDecrypt.setPassword(manager.decrypt(accountToDecrypt.getPassword(), input));
+                    if (accountToDecrypt.hasUser())
+                        accountToDecrypt.setUsername(manager.decrypt(accountToDecrypt.getUsername(), input));
+                    JOptionPane.showMessageDialog(null, accountToDecrypt);
+                    break;
                 case -1:
                     continuar = false;
+                    break;
             }
         }
     }

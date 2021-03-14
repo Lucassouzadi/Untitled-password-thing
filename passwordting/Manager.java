@@ -1,16 +1,10 @@
 package passwordting;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
+import javax.swing.*;
+import java.io.*;
 
-public class Menager {
-    private final char[] table = new char[] {
+public class Manager {
+    private final char[] table = new char[]{
             ',', 'N', 'T', 'i', 'M', '.', 'j', 'C', '-', '@',
             'e', ':', '8', 'n', 'W', 'H', 'b', 'J', 'm', 'o',
             '3', '9', '7', 'B', 'h', '%', '2', 'f', 'w', 'y',
@@ -18,7 +12,7 @@ public class Menager {
             'd', 'v', '&', 'U', 'Z', 'O', 's', 'A', 'R', 'G',
             'g', '1', ')', '(', 'I', 'r', 'p', 'V', 'u', 'q',
             'D', 'c', 'k', 'x', '6', 't', 'l', '$', '4', 'F',
-            'Y', 'z', 'X', 'P', 'L' };
+            'Y', 'z', 'X', 'P', 'L'};
 
     public void test(String password, String key) {
         String trueKey = generateTrueKey(password, key);
@@ -33,8 +27,8 @@ public class Menager {
     }
 
     private String generateTrueKey(String original, String key) {
-        String ting = "";
-        int pos = (int)Math.pow(original.length(), original.length()) % key.length();
+        StringBuilder trueKey = new StringBuilder();
+        int pos = (int) Math.pow(original.length(), original.length()) % key.length();
         int valor = value(key.charAt(pos));
         int i;
         for (i = 0; i < key.length(); i++) {
@@ -48,34 +42,34 @@ public class Menager {
             numba %= this.table.length;
             if (numba < 0)
                 numba *= -1;
-            ting = ting + this.table[numba];
+            trueKey.append(this.table[numba]);
         }
-        return ting;
+        return trueKey.toString();
     }
 
     public String encrypt(String original, String key) {
         if ("".equals(key))
             throw new IllegalArgumentException("Chave vazia");
-        String ting = "";
+        StringBuilder encripted = new StringBuilder();
         key = generateTrueKey(original, key);
         for (int i = 0; i < original.length(); i++) {
             int pos = value(original.charAt(i)) - value(key.charAt(i)) + this.table.length;
             pos %= this.table.length;
-            ting = ting + this.table[pos];
+            encripted.append(this.table[pos]);
         }
-        return ting;
+        return encripted.toString();
     }
 
     public String decrypt(String encryptedPassword, String key) {
         if ("".equals(key))
             return encryptedPassword;
-        String ting = "";
+        StringBuilder decrypted = new StringBuilder();
         key = generateTrueKey(encryptedPassword, key);
         for (int i = 0; i < encryptedPassword.length(); i++) {
             int pos = (value(encryptedPassword.charAt(i)) + value(key.charAt(i))) % this.table.length;
-            ting = ting + this.table[pos];
+            decrypted.append(this.table[pos]);
         }
-        return ting;
+        return decrypted.toString();
     }
 
     public int value(char arg) {
@@ -83,16 +77,16 @@ public class Menager {
             if (arg == this.table[i])
                 return i;
         }
-        throw new IllegalArgumentException("Invalid character");
+        throw new IllegalArgumentException("Invalid character \"" + arg + "\"");
     }
 
     public String hiddenInput(String title, String message) {
         String key = null;
         JPasswordField passwordField = new JPasswordField();
         passwordField.setEchoChar('*');
-        Object[] obj = { message, passwordField };
-        Object[] stringArray = { "Submit", "Cancel" };
-        if (JOptionPane.showOptionDialog(null, obj, title, 0, 3, null, stringArray, obj) == 0)
+        Object[] obj = {message, passwordField};
+        Object[] stringArray = {"Submit", "Cancel"};
+        if (0 == JOptionPane.showOptionDialog(null, obj, title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, stringArray, obj))
             key = new String(passwordField.getPassword());
         return key;
     }
@@ -108,12 +102,12 @@ public class Menager {
         }
     }
 
-    public Object read(File f) {
-        Object o = null;
+    public Account readAccount(File f) {
+        Account o = null;
         try {
             FileInputStream fos = new FileInputStream(f);
             try (ObjectInputStream os = new ObjectInputStream(fos)) {
-                o = os.readObject();
+                o = (Account) os.readObject();
             }
         } catch (IOException e) {
             e.printStackTrace();
