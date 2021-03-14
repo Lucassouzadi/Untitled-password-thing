@@ -1,4 +1,4 @@
-package passwordting;
+package br.com.jCryptic;
 
 import javax.swing.*;
 import java.io.*;

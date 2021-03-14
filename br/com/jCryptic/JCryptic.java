@@ -1,12 +1,12 @@
-package passwordting;
+package br.com.jCryptic;
 
 import javax.swing.*;
 import java.io.File;
 import java.util.Objects;
 
-public class PasswordTing {
+public class JCryptic {
 
-    public static final String TITLE = "Cryptic v10.0";
+    public static final String TITLE = "JCryptic v10.0";
     public static final int DECRYPT = 0;
     public static final int ENCRYPT = 1;
 
@@ -98,7 +98,7 @@ public class PasswordTing {
                     accountToDecrypt.setPassword(manager.decrypt(accountToDecrypt.getPassword(), input));
                     if (accountToDecrypt.hasUser())
                         accountToDecrypt.setUsername(manager.decrypt(accountToDecrypt.getUsername(), input));
-                    JOptionPane.showMessageDialog(null, accountToDecrypt);
+                    JOptionPane.showMessageDialog(null, accountToDecrypt, TITLE, JOptionPane.INFORMATION_MESSAGE, null);
                     break;
                 case -1:
                     continuar = false;
